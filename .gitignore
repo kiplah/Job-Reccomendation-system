@@ -37,3 +37,5 @@ venv.bak/
 
 # Pytest
 .pytest_cache/
+*.db
+jobs.db
