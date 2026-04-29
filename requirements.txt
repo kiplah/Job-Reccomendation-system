@@ -1,9 +1,24 @@
-Flask==3.0.0
+# Web Framework
+Django
+
+# Scraping & Automation
 Scrapy==2.11.0
+beautifulsoup4
+playwright
+
+# NLP & Machine Learning
 spacy==3.7.2
-sentence-transformers==2.2.2
-pytest==7.4.3
-python-dotenv==1.0.0
-SQLAlchemy==2.0.23
-pandas==2.1.4
-scikit-learn==1.3.2
+transformers
+sentence-transformers
+scikit-learn==1.4.0
+
+# Database
+# Note: Django handles the ORM, so no external DB package is required for SQLite.
+
+# Utilities
+python-dotenv
+
+# Testing
+pytest==8.0.0
+
+# Note: smtplib is part of the Python Standard Library, so it is not listed here.
