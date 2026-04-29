@@ -2,7 +2,8 @@
 Django
 
 # Scraping & Automation
-Scrapy==2.11.0
+Scrapy
+Twisted>=24.3.0
 beautifulsoup4
 playwright
 

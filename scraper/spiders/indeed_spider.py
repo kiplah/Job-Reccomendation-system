@@ -4,7 +4,7 @@ import urllib.parse
 
 class IndeedSpider(scrapy.Spider):
     name = 'indeed'
-    allowed_domains = ['ke.indeed.com', 'indeed.com']
+    allowed_domains = ['indeed.com']
     
     # Enforce the 2-second download delay
     custom_settings = {
@@ -14,7 +14,7 @@ class IndeedSpider(scrapy.Spider):
     # Generate start URLs for different search terms
     search_terms = ['software engineer', 'data analyst', 'python developer']
     start_urls = [
-        f'https://ke.indeed.com/jobs?q={urllib.parse.quote(term)}'
+        f'https://www.indeed.com/jobs?q={urllib.parse.quote(term)}&l=Kenya'
         for term in search_terms
     ]
 

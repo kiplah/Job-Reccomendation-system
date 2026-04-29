@@ -23,7 +23,7 @@ CONCURRENT_REQUESTS = 8
 
 # Custom Pipeline
 ITEM_PIPELINES = {
-    'scraper.pipelines.ScraperPipeline': 300,
+    'scraper.pipelines.DjangoSavePipeline': 300,
 }
 
 # User Agent Rotation
