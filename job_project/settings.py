@@ -20,7 +20,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Local apps
-    'web.apps.WebConfig',
+    'accounts',
+    'jobs',
+    'recommender',
+    'alerts',
+    'scraper',
+    'nlp',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
