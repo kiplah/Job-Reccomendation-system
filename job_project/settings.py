@@ -90,3 +90,6 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'web' / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Custom User Model
+AUTH_USER_MODEL = 'accounts.CustomUser'
