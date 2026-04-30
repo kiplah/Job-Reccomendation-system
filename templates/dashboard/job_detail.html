@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ job.title }} - JobMatch AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-3">
+    <div class="col-lg-9">
+        
+        <!-- Back Button -->
+        <a href="{% url 'dashboard:dashboard' %}" class="btn btn-link text-decoration-none ps-0 mb-4 text-secondary fw-bold">
+            <i class="bi bi-arrow-left me-1"></i> Back to AI Dashboard
+        </a>
+
+        <div class="card shadow border-0 rounded-4 mb-5 overflow-hidden">
+            <div class="bg-primary" style="height: 6px; width: 100%;"></div>
+            <div class="card-body p-4 p-md-5">
+                
+                <!-- Header -->
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start mb-4 gap-3">
+                    <div>
+                        <h2 class="fw-bold mb-2 text-dark">{{ job.title }}</h2>
+                        <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-building"></i> {{ job.company }}</h4>
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            <span class="badge bg-light text-dark border px-3 py-2 fs-6"><i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ job.location }}</span>
+                            <span class="badge bg-light text-dark border px-3 py-2 fs-6"><i class="bi bi-box-arrow-up-right text-primary me-1"></i> {{ job.platform }}</span>
+                            {% if job.date_posted %}
+                                <span class="badge bg-light text-dark border px-3 py-2 fs-6"><i class="bi bi-calendar3 text-secondary me-1"></i> {{ job.date_posted|date:"M d, Y" }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div>
+                        <a href="{{ job.url }}" target="_blank" class="btn btn-success btn-lg fw-bold shadow px-4 py-3 rounded-pill w-100">
+                            Apply Now <i class="bi bi-box-arrow-up-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="my-5 opacity-10">
+
+                <!-- Skills -->
+                {% if job.skills_required %}
+                <div class="mb-5">
+                    <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-tools text-primary me-2"></i> Detected Skills</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for skill in job.skills_required.split %}
+                            <span class="badge bg-dark px-3 py-2 fs-6 shadow-sm">{{ skill|title }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Description -->
+                <div class="mb-5">
+                    <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-file-text text-primary me-2"></i> Job Description</h5>
+                    <div class="text-secondary fs-5" style="line-height: 1.8; white-space: pre-wrap;">{{ job.description|truncatechars:1000 }}</div>
+                    
+                    {% if job.description|length > 1000 %}
+                        <div class="mt-4">
+                            <a href="{{ job.url }}" target="_blank" class="btn btn-outline-primary fw-bold px-4 rounded-pill">Read full description <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <hr class="my-5 opacity-10">
+
+                <!-- Interactive Rating -->
+                <div class="bg-light p-5 rounded-4 text-center border shadow-sm">
+                    <h4 class="fw-bold mb-2 text-dark">Rate this AI Recommendation</h4>
+                    <p class="text-secondary mb-4 fs-6">Your feedback instantly trains our Matrix Factorization Collaborative engine!</p>
+                    
+                    <div class="d-flex justify-content-center gap-3 display-5 text-warning mb-3" id="star-rating-container">
+                        <i class="bi bi-star rating-star" data-rating="1" style="cursor: pointer; transition: transform 0.2s;"></i>
+                        <i class="bi bi-star rating-star" data-rating="2" style="cursor: pointer; transition: transform 0.2s;"></i>
+                        <i class="bi bi-star rating-star" data-rating="3" style="cursor: pointer; transition: transform 0.2s;"></i>
+                        <i class="bi bi-star rating-star" data-rating="4" style="cursor: pointer; transition: transform 0.2s;"></i>
+                        <i class="bi bi-star rating-star" data-rating="5" style="cursor: pointer; transition: transform 0.2s;"></i>
+                    </div>
+                    <div id="rating-status" class="mt-3 fw-bold text-success fs-5" style="display: none;">
+                        <i class="bi bi-check-circle-fill me-1"></i> Feedback saved! Retraining engine...
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rating-star:hover { transform: scale(1.2); }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const stars = document.querySelectorAll('.rating-star');
+    const statusDiv = document.getElementById('rating-status');
+
+    stars.forEach(star => {
+        // Hover effects
+        star.addEventListener('mouseover', function() {
+            const rating = this.getAttribute('data-rating');
+            updateStars(rating);
+        });
+        
+        star.parentElement.addEventListener('mouseleave', function() {
+            // Because we don't fetch existing state, mouse leave just clears it
+            updateStars(0);
+        });
+
+        // Click to save
+        star.addEventListener('click', function() {
+            const rating = this.getAttribute('data-rating');
+            submitRating(rating);
+            updateStars(rating);
+            
+            // Lock UI after rating
+            stars.forEach(s => { s.style.pointerEvents = 'none'; });
+        });
+    });
+
+    function updateStars(rating) {
+        stars.forEach(s => {
+            if (parseInt(s.getAttribute('data-rating')) <= parseInt(rating)) {
+                s.classList.remove('bi-star');
+                s.classList.add('bi-star-fill');
+            } else {
+                s.classList.remove('bi-star-fill');
+                s.classList.add('bi-star');
+            }
+        });
+    }
+
+    function submitRating(rating) {
+        fetch(`/dashboard/feedback/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                job_id: {{ job.id }},
+                rating: rating
+            })
+        }).then(res => res.json()).then(data => {
+            if(data.status === 'ok') {
+                statusDiv.style.display = 'block';
+            }
+        });
+    }
+</script>
+{% endblock %}

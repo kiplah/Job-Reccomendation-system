@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Complete Your Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+            <div class="bg-primary bg-gradient text-white p-5 text-center">
+                <i class="bi bi-person-bounding-box display-4 mb-3 d-block opacity-75"></i>
+                <h3 class="mb-0 fw-bold">Professional Profile</h3>
+                <p class="mb-0 mt-2 opacity-75">The NLP Engine requires this data to compute your Vector Embeddings.</p>
+            </div>
+            
+            <div class="card-body p-4 p-md-5 bg-white">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark">{{ field.label }}</label>
+                            
+                            {% if field.name == 'skills' %}
+                                <div class="text-muted small mb-2"><i class="bi bi-info-circle"></i> Enter comma-separated skills (e.g. Python, Django, AWS, React)</div>
+                            {% endif %}
+                            
+                            {{ field }}
+                            
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1 fw-bold">{{ field.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <hr class="my-5 opacity-10">
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-dark btn-lg fw-bold py-3 shadow">
+                            <i class="bi bi-magic me-2"></i> Save & Get Recommendations
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styling standard inputs to match modern aesthetic */
+    input[type="text"], input[type="number"], textarea {
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #f8f9fa;
+        background-clip: padding-box;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+    textarea {
+        min-height: 120px;
+    }
+    input:focus, textarea:focus {
+        background-color: #fff;
+        border-color: #86b7fe;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+    }
+</style>
+{% endblock %}

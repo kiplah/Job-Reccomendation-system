@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Job Recommendations{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-5 mt-3">
+    <h2 class="fw-bold mb-0 text-dark">Your Job Recommendations</h2>
+</div>
+
+{% if not has_recommendations %}
+    <div class="alert alert-light shadow-sm border-0 py-5 text-center rounded-4 mt-5">
+        <i class="bi bi-magic display-1 text-primary mb-4 d-block opacity-75"></i>
+        <h3 class="fw-bold text-dark">AI Engine Waiting</h3>
+        <p class="mb-4 text-muted fs-5">Complete your profile to generate your first batch of mathematical job matches.</p>
+        <a href="{% url 'accounts:profile' %}" class="btn btn-primary btn-lg fw-bold px-5 rounded-pill shadow-sm">Complete Your Profile</a>
+    </div>
+{% else %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for rec in recommendations %}
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0 rounded-4 position-relative overflow-hidden job-card">
+                    
+                    <!-- Top accent color line -->
+                    <div class="bg-primary" style="height: 4px; width: 100%;"></div>
+
+                    <!-- AI Match Badge -->
+                    <div class="position-absolute top-0 end-0 m-3 mt-4">
+                        <span class="badge {% if rec.score > 0.8 %}bg-success{% elif rec.score > 0.6 %}bg-primary{% else %}bg-secondary{% endif %} rounded-pill px-3 py-2 shadow-sm fs-6 border border-white border-2">
+                            <i class="bi bi-lightning-charge-fill text-warning"></i> 
+                            {% widthratio rec.score 1 100 %}% Match
+                        </span>
+                    </div>
+
+                    <div class="card-body p-4 pt-4">
+                        <h5 class="card-title fw-bold text-dark pe-5 mb-1 text-truncate" title="{{ rec.job.title }}">{{ rec.job.title }}</h5>
+                        <h6 class="card-subtitle mb-4 text-primary fw-semibold"><i class="bi bi-building"></i> {{ rec.job.company }}</h6>
+                        
+                        <div class="mb-4 d-flex gap-2 flex-wrap">
+                            <span class="badge bg-light text-secondary border px-2 py-1"><i class="bi bi-geo-alt-fill text-danger opacity-75"></i> {{ rec.job.location }}</span>
+                            <span class="badge bg-light text-secondary border px-2 py-1"><i class="bi bi-briefcase-fill text-primary opacity-75"></i> {{ rec.job.platform }}</span>
+                        </div>
+                        
+                        <!-- Star Rating Widget Placeholder -->
+                        <div class="mt-auto d-flex align-items-center">
+                            <div class="text-warning fs-5">
+                                <i class="bi bi-star"></i>
+                                <i class="bi bi-star"></i>
+                                <i class="bi bi-star"></i>
+                                <i class="bi bi-star"></i>
+                                <i class="bi bi-star"></i>
+                            </div>
+                            <span class="text-muted small ms-2 fw-medium">Rate match</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer bg-light border-0 p-3 d-flex gap-2">
+                        <a href="{% url 'dashboard:job_detail' rec.job.id %}" class="btn btn-dark w-50 fw-bold rounded-3 shadow-sm">View Details</a>
+                        
+                        <button class="btn {% if rec.applied %}btn-success{% else %}btn-outline-secondary{% endif %} w-50 fw-bold rounded-3" 
+                                {% if rec.applied %}disabled{% endif %}
+                                onclick="markApplied({{ rec.job.id }}, this)">
+                            {% if rec.applied %}<i class="bi bi-check-circle-fill"></i> Applied{% else %}Mark Applied{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<style>
+    .job-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .job-card:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function markApplied(jobId, btnElement) {
+    fetch(`/dashboard/apply/${jobId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    }).then(res => res.json()).then(data => {
+        if(data.status === 'ok') {
+            btnElement.classList.remove('btn-outline-secondary');
+            btnElement.classList.add('btn-success');
+            btnElement.innerHTML = '<i class="bi bi-check-circle-fill"></i> Applied';
+            btnElement.disabled = true;
+        }
+    });
+}
+</script>
+{% endblock %}
