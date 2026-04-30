@@ -1,9 +1,11 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('', RedirectView.as_view(url='/dashboard/', permanent=False)),
     path('accounts/', include('accounts.urls')),
     path('dashboard/', include('dashboard.urls')),
-    path('', include('dashboard.urls')),  # Map dashboard as the root landing page
+    path('alerts/', include('alerts.urls')),
+    path('admin/', admin.site.urls),
 ]
