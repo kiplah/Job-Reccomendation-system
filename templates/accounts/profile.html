@@ -3,41 +3,106 @@
 {% block title %}Complete Your Profile{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-7">
-        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
-            <div class="bg-primary bg-gradient text-white p-5 text-center">
-                <i class="bi bi-person-bounding-box display-4 mb-3 d-block opacity-75"></i>
-                <h3 class="mb-0 fw-bold">Professional Profile</h3>
-                <p class="mb-0 mt-2 opacity-75">The NLP Engine requires this data to compute your Vector Embeddings.</p>
+<div class="row justify-content-center mt-3">
+    <div class="col-lg-10">
+        <div class="card shadow border-0 rounded-4 overflow-hidden mb-5">
+            
+            <!-- Hero Header -->
+            <div class="bg-primary bg-gradient text-white p-5 text-center position-relative">
+                <i class="bi bi-person-lines-fill display-4 mb-3 d-block opacity-75"></i>
+                <h2 class="mb-1 fw-bold">Professional Profile</h2>
+                <p class="mb-0 mt-2 opacity-75 fs-5">The NLP Engine requires this mathematical data to compute your SBERT Vector Embeddings.</p>
             </div>
             
+            <!-- Form Body -->
             <div class="card-body p-4 p-md-5 bg-white">
-                <form method="POST">
+                <form method="POST" id="profile-form">
                     {% csrf_token %}
                     
-                    {% for field in form %}
-                        <div class="mb-4">
-                            <label class="form-label fw-bold text-dark">{{ field.label }}</label>
+                    <div class="row g-4">
+                        <!-- LEFT COLUMN -->
+                        <div class="col-md-6">
                             
-                            {% if field.name == 'skills' %}
-                                <div class="text-muted small mb-2"><i class="bi bi-info-circle"></i> Enter comma-separated skills (e.g. Python, Django, AWS, React)</div>
-                            {% endif %}
-                            
-                            {{ field }}
-                            
-                            {% if field.errors %}
-                                <div class="text-danger small mt-1 fw-bold">{{ field.errors|join:", " }}</div>
-                            {% endif %}
+                            <!-- Education -->
+                            <div class="mb-4">
+                                <label for="{{ form.education.id_for_label }}" class="form-label fw-bold text-secondary mb-2">Education Background</label>
+                                <textarea name="{{ form.education.html_name }}" 
+                                          id="{{ form.education.id_for_label }}" 
+                                          class="form-control custom-input" 
+                                          rows="3" 
+                                          placeholder="e.g. B.Sc. Computer Science, Karatina University">{{ form.education.value|default_if_none:'' }}</textarea>
+                                {% if form.education.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.education.errors|join:", " }}</div>{% endif %}
+                            </div>
+
+                            <!-- Experience Years -->
+                            <div class="mb-4">
+                                <label for="{{ form.experience_years.id_for_label }}" class="form-label fw-bold text-secondary mb-2">Years of Experience</label>
+                                <input type="number" 
+                                       name="{{ form.experience_years.html_name }}" 
+                                       id="{{ form.experience_years.id_for_label }}" 
+                                       class="form-control custom-input" 
+                                       min="0" 
+                                       placeholder="e.g. 2"
+                                       value="{{ form.experience_years.value|default_if_none:'' }}">
+                                {% if form.experience_years.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.experience_years.errors|join:", " }}</div>{% endif %}
+                            </div>
+
+                            <!-- Location -->
+                            <div class="mb-4">
+                                <label for="{{ form.location.id_for_label }}" class="form-label fw-bold text-secondary mb-2">Current Location</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 custom-input-addon"><i class="bi bi-geo-alt-fill text-danger opacity-75"></i></span>
+                                    <input type="text" 
+                                           name="{{ form.location.html_name }}" 
+                                           id="{{ form.location.id_for_label }}" 
+                                           class="form-control custom-input border-start-0 ps-0" 
+                                           placeholder="e.g. Nairobi, Kenya"
+                                           value="{{ form.location.value|default_if_none:'' }}">
+                                </div>
+                                {% if form.location.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.location.errors|join:", " }}</div>{% endif %}
+                            </div>
+
                         </div>
-                    {% endfor %}
+
+                        <!-- RIGHT COLUMN -->
+                        <div class="col-md-6">
+                            
+                            <!-- Skills -->
+                            <div class="mb-4">
+                                <label for="{{ form.skills.id_for_label }}" class="form-label fw-bold text-secondary mb-2">Technical Skills <span class="text-primary">*</span></label>
+                                <textarea name="{{ form.skills.html_name }}" 
+                                          id="{{ form.skills.id_for_label }}" 
+                                          class="form-control custom-input" 
+                                          rows="4" 
+                                          required
+                                          placeholder="e.g. Python, Django, Machine Learning, SQL...">{{ form.skills.value|default_if_none:'' }}</textarea>
+                                {% if form.skills.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.skills.errors|join:", " }}</div>{% endif %}
+                            </div>
+
+                            <!-- Career Preferences -->
+                            <div class="mb-4">
+                                <label for="{{ form.career_preferences.id_for_label }}" class="form-label fw-bold text-secondary mb-2">Career Preferences</label>
+                                <textarea name="{{ form.career_preferences.html_name }}" 
+                                          id="{{ form.career_preferences.id_for_label }}" 
+                                          class="form-control custom-input" 
+                                          rows="4" 
+                                          placeholder="e.g. Remote software engineering roles in AI/ML...">{{ form.career_preferences.value|default_if_none:'' }}</textarea>
+                                {% if form.career_preferences.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.career_preferences.errors|join:", " }}</div>{% endif %}
+                            </div>
+
+                        </div>
+                    </div>
                     
                     <hr class="my-5 opacity-10">
                     
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-dark btn-lg fw-bold py-3 shadow">
-                            <i class="bi bi-magic me-2"></i> Save & Get Recommendations
+                    <!-- Bottom Action Area -->
+                    <div class="text-center px-lg-5">
+                        <button type="submit" class="btn btn-dark w-100 btn-lg fw-bold py-3 rounded-pill shadow submit-btn mb-3" style="background-color: #1a1a2e;">
+                            🚀 Save Profile & Generate Recommendations
                         </button>
+                        <p class="text-muted small fw-medium px-4">
+                            <i class="bi bi-cpu text-primary me-1"></i> Our SBERT engine will compute your semantic vector and match you against <span class="text-dark fw-bold">197+</span> live job listings.
+                        </p>
                     </div>
                 </form>
             </div>
@@ -46,29 +111,37 @@
 </div>
 
 <style>
-    /* Styling standard inputs to match modern aesthetic */
-    input[type="text"], input[type="number"], textarea {
-        display: block;
-        width: 100%;
-        padding: 0.75rem 1rem;
-        font-size: 1rem;
-        font-weight: 400;
-        line-height: 1.5;
-        color: #212529;
+    /* Premium Input Styling */
+    .custom-input, .custom-input-addon {
         background-color: #f8f9fa;
-        background-clip: padding-box;
-        border: 1px solid #dee2e6;
-        border-radius: 0.5rem;
-        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        border: 2px solid #e9ecef;
+        border-radius: 0.75rem;
+        padding: 0.85rem 1rem;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #212529;
+        transition: all 0.3s ease;
     }
-    textarea {
-        min-height: 120px;
+    textarea.custom-input {
+        resize: vertical;
     }
-    input:focus, textarea:focus {
-        background-color: #fff;
-        border-color: #86b7fe;
-        outline: 0;
-        box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+    
+    /* Input Focus State */
+    .custom-input:focus, .input-group:focus-within .custom-input, .input-group:focus-within .custom-input-addon {
+        background-color: #ffffff;
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 4px rgba(13,110,253,0.15);
+        outline: none;
+    }
+    
+    /* Submit Button Hover Physics */
+    .submit-btn {
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background-color 0.2s ease;
+    }
+    .submit-btn:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 15px 25px rgba(26,26,46,0.25) !important;
+        background-color: #242442 !important;
     }
 </style>
 {% endblock %}
