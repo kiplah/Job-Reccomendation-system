@@ -3,12 +3,49 @@
 {% block title %}Your Job Recommendations{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-5 mt-3">
-    <h2 class="fw-bold mb-0 text-dark">Your Job Recommendations</h2>
+<!-- STATS BAR -->
+<div class="row mb-5 g-3 mt-2">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100" style="background-color: #ffffff;">
+            <div class="card-body text-center p-4">
+                <i class="bi bi-database display-5 text-primary mb-2 opacity-75"></i>
+                <h6 class="text-muted text-uppercase fw-bold mb-1" style="letter-spacing: 1px;">Total Jobs in DB</h6>
+                <h2 class="fw-bolder text-dark mb-0">{{ total_jobs|default:"0" }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100" style="background-color: #ffffff;">
+            <div class="card-body text-center p-4">
+                <i class="bi bi-lightning-charge display-5 text-success mb-2 opacity-75"></i>
+                <h6 class="text-muted text-uppercase fw-bold mb-1" style="letter-spacing: 1px;">Your Matches</h6>
+                <h2 class="fw-bolder text-dark mb-0">{{ recommendations|length }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100" style="background-color: #ffffff;">
+            <div class="card-body text-center p-4">
+                <i class="bi bi-person-badge display-5 text-info mb-2 opacity-75"></i>
+                <h6 class="text-muted text-uppercase fw-bold mb-1" style="letter-spacing: 1px;">Profile Status</h6>
+                <h3 class="fw-bolder text-dark mb-0 mt-2">
+                    {% if user_profile.profile_complete %}
+                        Complete ✅
+                    {% else %}
+                        Incomplete ⚠️
+                    {% endif %}
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0 text-dark">Top AI Recommendations</h3>
 </div>
 
 {% if not has_recommendations %}
-    <div class="alert alert-light shadow-sm border-0 py-5 text-center rounded-4 mt-5">
+    <div class="alert alert-light shadow-sm border-0 py-5 text-center rounded-4 mt-4">
         <i class="bi bi-magic display-1 text-primary mb-4 d-block opacity-75"></i>
         <h3 class="fw-bold text-dark">AI Engine Waiting</h3>
         <p class="mb-4 text-muted fs-5">Complete your profile to generate your first batch of mathematical job matches.</p>
@@ -18,49 +55,61 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for rec in recommendations %}
             <div class="col">
-                <div class="card h-100 shadow-sm border-0 rounded-4 position-relative overflow-hidden job-card">
+                <!-- Colored Top Border logic -->
+                <div class="card h-100 shadow-sm border-0 rounded-4 position-relative overflow-hidden job-card" 
+                     style="border-top: 6px solid {% if rec.job.platform == 'RemoteOK' %}#0d6efd{% elif rec.job.platform == 'Jobicy' %}#198754{% else %}#6c757d{% endif %} !important;">
                     
-                    <!-- Top accent color line -->
-                    <div class="bg-primary" style="height: 4px; width: 100%;"></div>
-
-                    <!-- AI Match Badge -->
-                    <div class="position-absolute top-0 end-0 m-3 mt-4">
-                        <span class="badge {% if rec.score > 0.8 %}bg-success{% elif rec.score > 0.6 %}bg-primary{% else %}bg-secondary{% endif %} rounded-pill px-3 py-2 shadow-sm fs-6 border border-white border-2">
-                            <i class="bi bi-lightning-charge-fill text-warning"></i> 
-                            {% widthratio rec.score 1 100 %}% Match
-                        </span>
-                    </div>
-
-                    <div class="card-body p-4 pt-4">
-                        <h5 class="card-title fw-bold text-dark pe-5 mb-1 text-truncate" title="{{ rec.job.title }}">{{ rec.job.title }}</h5>
-                        <h6 class="card-subtitle mb-4 text-primary fw-semibold"><i class="bi bi-building"></i> {{ rec.job.company }}</h6>
+                    <div class="card-body p-4 d-flex flex-column">
                         
-                        <div class="mb-4 d-flex gap-2 flex-wrap">
-                            <span class="badge bg-light text-secondary border px-2 py-1"><i class="bi bi-geo-alt-fill text-danger opacity-75"></i> {{ rec.job.location }}</span>
-                            <span class="badge bg-light text-secondary border px-2 py-1"><i class="bi bi-briefcase-fill text-primary opacity-75"></i> {{ rec.job.platform }}</span>
+                        <!-- Platform Badge -->
+                        <div class="mb-3">
+                            <span class="badge {% if rec.job.platform == 'RemoteOK' %}bg-primary{% elif rec.job.platform == 'Jobicy' %}bg-success{% else %}bg-secondary{% endif %} rounded-pill px-3 py-2 shadow-sm fw-bold">
+                                {{ rec.job.platform }}
+                            </span>
                         </div>
+
+                        <!-- Title -->
+                        <h5 class="card-title fw-bolder text-dark mb-3" title="{{ rec.job.title }}" style="line-height: 1.4;">{{ rec.job.title|truncatechars:50 }}</h5>
                         
-                        <!-- Star Rating Widget Placeholder -->
-                        <div class="mt-auto d-flex align-items-center">
-                            <div class="text-warning fs-5">
-                                <i class="bi bi-star"></i>
-                                <i class="bi bi-star"></i>
-                                <i class="bi bi-star"></i>
-                                <i class="bi bi-star"></i>
-                                <i class="bi bi-star"></i>
+                        <!-- Company & Location -->
+                        <p class="text-muted mb-2 fw-medium"><span class="fs-5 me-2">🏢</span> {{ rec.job.company }}</p>
+                        <p class="text-muted mb-4 fw-medium"><span class="fs-5 me-2">📍</span> {{ rec.job.location }}</p>
+                        
+                        <div class="mt-auto">
+                            <!-- Match Score Progress Bar -->
+                            <div class="mb-2 d-flex justify-content-between align-items-center">
+                                <span class="fw-bold small text-muted text-uppercase" style="letter-spacing: 0.5px;">AI Match Score</span>
+                                <span class="fw-bold small text-dark">{% widthratio rec.score 1 100 %}% Match</span>
                             </div>
-                            <span class="text-muted small ms-2 fw-medium">Rate match</span>
+                            <div class="progress mb-4 rounded-pill bg-light" style="height: 12px; box-shadow: inset 0 1px 2px rgba(0,0,0,.1);">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated {% if rec.score > 0.55 %}bg-success{% elif rec.score >= 0.40 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {% widthratio rec.score 1 100 %}%;" 
+                                     aria-valuenow="{% widthratio rec.score 1 100 %}" aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+                            
+                            <!-- Star Rating -->
+                            <div class="mb-4 d-flex align-items-center justify-content-center bg-light rounded-4 py-2 border">
+                                <div class="text-warning fs-4 d-flex gap-1">
+                                    <i class="bi bi-star rating-star" style="cursor:pointer; transition: transform 0.2s;" data-rating="1" data-jobid="{{ rec.job.id }}"></i>
+                                    <i class="bi bi-star rating-star" style="cursor:pointer; transition: transform 0.2s;" data-rating="2" data-jobid="{{ rec.job.id }}"></i>
+                                    <i class="bi bi-star rating-star" style="cursor:pointer; transition: transform 0.2s;" data-rating="3" data-jobid="{{ rec.job.id }}"></i>
+                                    <i class="bi bi-star rating-star" style="cursor:pointer; transition: transform 0.2s;" data-rating="4" data-jobid="{{ rec.job.id }}"></i>
+                                    <i class="bi bi-star rating-star" style="cursor:pointer; transition: transform 0.2s;" data-rating="5" data-jobid="{{ rec.job.id }}"></i>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'dashboard:job_detail' rec.job.id %}" class="btn btn-primary w-50 fw-bold rounded-3 shadow-sm py-2">View Details</a>
+                                <button class="btn {% if rec.applied %}btn-success{% else %}btn-outline-success{% endif %} w-50 fw-bold rounded-3 py-2" 
+                                        {% if rec.applied %}disabled{% endif %}
+                                        onclick="markApplied({{ rec.job.id }}, this)">
+                                    {% if rec.applied %}<i class="bi bi-check-all fs-5"></i> Applied{% else %}&check; Applied{% endif %}
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="card-footer bg-light border-0 p-3 d-flex gap-2">
-                        <a href="{% url 'dashboard:job_detail' rec.job.id %}" class="btn btn-dark w-50 fw-bold rounded-3 shadow-sm">View Details</a>
-                        
-                        <button class="btn {% if rec.applied %}btn-success{% else %}btn-outline-secondary{% endif %} w-50 fw-bold rounded-3" 
-                                {% if rec.applied %}disabled{% endif %}
-                                onclick="markApplied({{ rec.job.id }}, this)">
-                            {% if rec.applied %}<i class="bi bi-check-circle-fill"></i> Applied{% else %}Mark Applied{% endif %}
-                        </button>
                     </div>
                 </div>
             </div>
@@ -69,8 +118,16 @@
 {% endif %}
 
 <style>
-    .job-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-    .job-card:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
+    .job-card { 
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease; 
+    }
+    .job-card:hover { 
+        transform: translateY(-8px); 
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; 
+    }
+    .rating-star:hover {
+        transform: scale(1.2);
+    }
 </style>
 {% endblock %}
 
@@ -85,12 +142,43 @@ function markApplied(jobId, btnElement) {
         }
     }).then(res => res.json()).then(data => {
         if(data.status === 'ok') {
-            btnElement.classList.remove('btn-outline-secondary');
+            btnElement.classList.remove('btn-outline-success');
             btnElement.classList.add('btn-success');
-            btnElement.innerHTML = '<i class="bi bi-check-circle-fill"></i> Applied';
+            btnElement.innerHTML = '<i class="bi bi-check-all fs-5"></i> Applied';
             btnElement.disabled = true;
         }
     });
 }
+
+// Interactive Star logic
+document.querySelectorAll('.rating-star').forEach(star => {
+    star.addEventListener('click', function() {
+        let rating = this.getAttribute('data-rating');
+        let jobId = this.getAttribute('data-jobid');
+        let parent = this.parentElement;
+        
+        // Visual update
+        let stars = parent.querySelectorAll('.rating-star');
+        stars.forEach(s => {
+            if (parseInt(s.getAttribute('data-rating')) <= parseInt(rating)) {
+                s.classList.remove('bi-star');
+                s.classList.add('bi-star-fill');
+            } else {
+                s.classList.remove('bi-star-fill');
+                s.classList.add('bi-star');
+            }
+        });
+        
+        // Post to backend silently
+        fetch(`/dashboard/feedback/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ job_id: jobId, rating: rating })
+        });
+    });
+});
 </script>
 {% endblock %}
