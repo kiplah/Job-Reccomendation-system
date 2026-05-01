@@ -4,18 +4,33 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from recommender.models import Recommendation, UserFeedback
+from recommender.hybrid import generate_recommendations
 from jobs.models import JobListing
+from accounts.models import UserProfile
 
 @login_required
 def dashboard_view(request):
     """
     Fetches the top 10 AI recommendations for the active user and passes them to the template.
+    If none exist, automatically generates them.
     """
-    recommendations = Recommendation.objects.filter(user=request.user).select_related('job').order_by('-score')[:10]
+    # 1. Fetch existing recommendations
+    recommendations = list(Recommendation.objects.filter(user=request.user).select_related('job').order_by('-score')[:10])
+    
+    # 2. If none exist, auto-generate them
+    if not recommendations:
+        generate_recommendations(request.user, top_n=10)
+        recommendations = list(Recommendation.objects.filter(user=request.user).select_related('job').order_by('-score')[:10])
+        
+    # 3. Fetch auxiliary data for the template
+    user_profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    total_jobs = JobListing.objects.count()
     
     context = {
         'recommendations': recommendations,
-        'has_recommendations': len(recommendations) > 0
+        'has_recommendations': len(recommendations) > 0,
+        'user_profile': user_profile,
+        'total_jobs': total_jobs
     }
     return render(request, 'dashboard/index.html', context)
 
