@@ -58,7 +58,8 @@
                         
                         <button class="btn {% if rec.applied %}btn-success{% else %}btn-outline-secondary{% endif %} w-50 fw-bold rounded-3" 
                                 {% if rec.applied %}disabled{% endif %}
-                                onclick="markApplied({{ rec.job.id }}, this)">
+                                data-jobid="{{ rec.job.id }}"
+                                onclick="markApplied(this.dataset.jobid, this)">
                             {% if rec.applied %}<i class="bi bi-check-circle-fill"></i> Applied{% else %}Mark Applied{% endif %}
                         </button>
                     </div>

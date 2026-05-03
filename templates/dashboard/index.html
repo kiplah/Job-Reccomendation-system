@@ -56,8 +56,7 @@
         {% for rec in recommendations %}
             <div class="col">
                 <!-- Colored Top Border logic -->
-                <div class="card h-100 shadow-sm border-0 rounded-4 position-relative overflow-hidden job-card" 
-                     style="border-top: 6px solid {% if rec.job.platform == 'RemoteOK' %}#0d6efd{% elif rec.job.platform == 'Jobicy' %}#198754{% else %}#6c757d{% endif %} !important;">
+                <div class="card h-100 shadow-sm border-0 rounded-4 position-relative overflow-hidden job-card {% if rec.job.platform == 'RemoteOK' %}border-remoteok{% elif rec.job.platform == 'Jobicy' %}border-jobicy{% else %}border-default{% endif %}">
                     
                     <div class="card-body p-4 d-flex flex-column">
                         
@@ -84,7 +83,7 @@
                             <div class="progress mb-4 rounded-pill bg-light" style="height: 12px; box-shadow: inset 0 1px 2px rgba(0,0,0,.1);">
                                 <div class="progress-bar progress-bar-striped progress-bar-animated {% if rec.score > 0.55 %}bg-success{% elif rec.score >= 0.40 %}bg-warning{% else %}bg-danger{% endif %}" 
                                      role="progressbar" 
-                                     style="width: {% widthratio rec.score 1 100 %}%;" 
+                                     data-width="{% widthratio rec.score 1 100 %}" 
                                      aria-valuenow="{% widthratio rec.score 1 100 %}" aria-valuemin="0" aria-valuemax="100">
                                 </div>
                             </div>
@@ -105,7 +104,8 @@
                                 <a href="{% url 'dashboard:job_detail' rec.job.id %}" class="btn btn-primary w-50 fw-bold rounded-3 shadow-sm py-2">View Details</a>
                                 <button class="btn {% if rec.applied %}btn-success{% else %}btn-outline-success{% endif %} w-50 fw-bold rounded-3 py-2" 
                                         {% if rec.applied %}disabled{% endif %}
-                                        onclick="markApplied({{ rec.job.id }}, this)">
+                                        data-jobid="{{ rec.job.id }}"
+                                        onclick="markApplied(this.dataset.jobid, this)">
                                     {% if rec.applied %}<i class="bi bi-check-all fs-5"></i> Applied{% else %}&check; Applied{% endif %}
                                 </button>
                             </div>
@@ -118,6 +118,10 @@
 {% endif %}
 
 <style>
+    .border-remoteok { border-top: 6px solid #0d6efd !important; }
+    .border-jobicy { border-top: 6px solid #198754 !important; }
+    .border-default { border-top: 6px solid #6c757d !important; }
+
     .job-card { 
         transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease; 
     }
@@ -149,6 +153,11 @@ function markApplied(jobId, btnElement) {
         }
     });
 }
+
+// Set progress bar widths
+document.querySelectorAll('.progress-bar[data-width]').forEach(bar => {
+    bar.style.width = bar.dataset.width + '%';
+});
 
 // Interactive Star logic
 document.querySelectorAll('.rating-star').forEach(star => {

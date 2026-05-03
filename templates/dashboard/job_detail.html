@@ -138,8 +138,8 @@
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                job_id: {{ job.id }},
-                rating: rating
+                job_id: parseInt("{{ job.id }}"),
+                rating: parseInt(rating)
             })
         }).then(res => res.json()).then(data => {
             if(data.status === 'ok') {
