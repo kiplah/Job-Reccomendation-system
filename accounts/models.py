@@ -11,6 +11,7 @@ class UserProfile(models.Model):
     experience_years = models.IntegerField(blank=True, null=True)
     career_preferences = models.TextField(blank=True, null=True)
     location = models.CharField(max_length=255, blank=True, null=True)
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     profile_complete = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
