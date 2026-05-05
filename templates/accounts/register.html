@@ -1,3 +1,4 @@
+{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -254,6 +255,10 @@
             </form>
 
             <div class="divider">or</div>
+
+            <a href="{% provider_login_url 'google' %}" class="btn btn-outline-custom w-100 mb-3" style="border-color: #cbd5e1; background-color: #ffffff;">
+                <i class="bi bi-google me-2" style="color: #ea4335;"></i> Sign up with Google
+            </a>
 
             <a href="{% url 'accounts:login' %}" class="btn btn-outline-custom w-100">Login to existing account</a>
 
