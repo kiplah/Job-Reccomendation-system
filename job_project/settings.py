@@ -138,9 +138,12 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
 
 # Bypass the "Sign In Via Google" intermediate confirmation page
 SOCIALACCOUNT_LOGIN_ON_GET = True
+
+# Automatically create the local user account without asking for a username
+SOCIALACCOUNT_AUTO_SIGNUP = True
