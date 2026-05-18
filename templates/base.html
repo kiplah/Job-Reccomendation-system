@@ -135,10 +135,60 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
+                {% if user.is_authenticated %}
+                <!-- Global Search Bar -->
+                <form class="d-flex mx-lg-4 my-3 my-lg-0 flex-grow-1" style="max-width: 500px;" action="{% url 'dashboard:search' %}" method="GET">
+                    <div class="input-group">
+                        <span class="input-group-text bg-body border-end-0 rounded-start-pill ps-3 text-secondary">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input class="form-control border-start-0 rounded-end-pill bg-body shadow-none" type="search" name="q" placeholder="Search for jobs, companies, or skills" aria-label="Search" value="{{ request.GET.q }}">
+                    </div>
+                </form>
+                {% endif %}
                 <ul class="navbar-nav ms-auto align-items-center">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link px-3" href="{% url 'dashboard:dashboard' %}">Find Work</a>
+                        </li>
+                        
+                        <!-- Notifications Bell -->
+                        <li class="nav-item dropdown mx-2">
+                            <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" onclick="markNotificationsRead()">
+                                <i class="bi bi-bell fs-5"></i>
+                                {% if unread_count and unread_count > 0 %}
+                                    <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; transform: translate(-30%, 30%) !important;">
+                                        {{ unread_count }}
+                                    </span>
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 p-0" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                                <div class="p-3 border-bottom border-secondary-subtle fw-bold text-body bg-body-tertiary rounded-top-3">
+                                    Notifications
+                                </div>
+                                {% if unread_notifications %}
+                                    {% for notif in unread_notifications %}
+                                        <li>
+                                            <a class="dropdown-item py-3 border-bottom border-secondary-subtle" href="{% url 'dashboard:job_detail' notif.job.id %}" style="white-space: normal;">
+                                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                                    <span class="fw-bold text-upwork-green small">New Match!</span>
+                                                    <span class="badge bg-secondary-subtle text-body rounded-pill" style="font-size:0.7rem;">{% widthratio notif.score 1 100 %}%</span>
+                                                </div>
+                                                <div class="fw-semibold text-truncate mb-1" title="{{ notif.job.title }}">{{ notif.job.title }}</div>
+                                                <div class="small text-secondary"><i class="bi bi-building me-1"></i>{{ notif.job.company }}</div>
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                    <li>
+                                        <a href="{% url 'dashboard:dashboard' %}" class="dropdown-item py-2 text-center text-upwork-green fw-semibold small rounded-bottom-3 bg-body-tertiary hover-bg-light">View all recommendations</a>
+                                    </li>
+                                {% else %}
+                                    <li class="p-4 text-center text-secondary small">
+                                        <i class="bi bi-bell-slash fs-3 mb-2 d-block opacity-50"></i>
+                                        No new notifications.<br>Check your dashboard for past matches!
+                                    </li>
+                                {% endif %}
+                            </ul>
                         </li>
                         <li class="nav-item ms-lg-3 mt-3 mt-lg-0 dropdown">
                             <a class="nav-link p-0 d-flex align-items-center dropdown-toggle text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -242,6 +292,43 @@
             updateThemeIcon(document.documentElement.getAttribute('data-bs-theme'));
         });
     </script>
-    {% block extra_js %}{% endblock %}
+        
+    <script>
+        function markNotificationsRead() {
+            const badge = document.getElementById('notification-badge');
+            if (badge) {
+                badge.style.display = 'none'; // Hide immediately for UI snappiness
+                
+                fetch("{% url 'dashboard:mark_notifications_read' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => {
+                    if(!response.ok) badge.style.display = 'block'; // Revert on failure
+                }).catch(error => {
+                    badge.style.display = 'block';
+                });
+            }
+        }
+        
+        // Helper function to get CSRF cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+    {% block extra_scripts %}{% endblock %}
 </body>
 </html>
