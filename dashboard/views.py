@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.db.models import Q
 from recommender.models import Recommendation, UserFeedback
 from recommender.hybrid import generate_recommendations
 from jobs.models import JobListing
@@ -102,3 +103,35 @@ def feedback_view(request):
         return JsonResponse({"status": "ok"})
     except (ValueError, json.JSONDecodeError):
         return JsonResponse({"error": "Invalid payload format"}, status=400)
+
+@login_required
+def search_view(request):
+    """
+    Handles global job searches from the navbar.
+    """
+    query = request.GET.get('q', '').strip()
+    results = []
+    
+    if query:
+        # Search by title, company, or skills
+        results = JobListing.objects.filter(
+            Q(title__icontains=query) | 
+            Q(company__icontains=query) |
+            Q(skills_required__icontains=query)
+        ).filter(is_active=True).order_by('-scraped_at')[:50]
+        
+    context = {
+        'query': query,
+        'results': results,
+        'result_count': len(results)
+    }
+    return render(request, 'dashboard/search_results.html', context)
+
+@login_required
+@require_POST
+def mark_notifications_read(request):
+    """
+    API Endpoint: Marks all unread recommendations as seen when the user opens the notification bell.
+    """
+    Recommendation.objects.filter(user=request.user, seen=False).update(seen=True)
+    return JsonResponse({"status": "ok"})

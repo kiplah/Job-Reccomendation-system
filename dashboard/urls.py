@@ -8,4 +8,6 @@ urlpatterns = [
     path('job/<int:id>/', views.job_detail_view, name='job_detail'),
     path('apply/<int:id>/', views.mark_applied_view, name='mark_applied'),
     path('feedback/', views.feedback_view, name='feedback'),
+    path('search/', views.search_view, name='search'),
+    path('notifications/read/', views.mark_notifications_read, name='mark_notifications_read'),
 ]
