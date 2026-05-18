@@ -39,3 +39,4 @@ venv.bak/
 .pytest_cache/
 *.db
 jobs.db
+/media
